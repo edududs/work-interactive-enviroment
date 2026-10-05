@@ -18,8 +18,8 @@ pnpm dev
 
 ```text
 apps/
-  web/            Next.js + React. O motor 3D (three.js) fica isolado em src/world
-    src/world/    engine/ map/ entities/ systems/ (único ponto de entrada: createWorld)
+  web/            Next.js + React. O mundo 3D (React Three Fiber) fica isolado em src/world
+    src/world/    World.tsx (único ponto de entrada), components/ map/ systems/
     public/maps/  layout do mapa no formato Tiled JSON + tileset
   api/            NestJS (módulos world e agents, dados em memória por enquanto)
 packages/
@@ -28,12 +28,13 @@ packages/
 
 O mundo não conhece agentes de IA: ele recebe entidades com posição, sprite e rótulo.
 Quem junta o estado do mapa (`agentId`) com os dados do agente é `apps/web/src/components/WorldView.tsx`.
-O mundo avisa o React por eventos (`nearbyEntityChanged`) só quando algo muda, então o React não re-renderiza a cada frame.
+Movimento e câmera rodam no `useFrame` com refs, fora do estado React. O mundo avisa a UI por callback (`onNearbyEntityChanged`) só quando algo muda, então o React não re-renderiza a cada frame.
 
 ## 3D leve
 
-- three.js puro, sem motor de física: colisão é círculo contra o grid do mapa.
-- O mapa inteiro é desenhado com 2 `InstancedMesh` (chão e blocos), então custa 2 draw calls.
+- React Three Fiber sobre three.js, sem motor de física: colisão é círculo contra o grid do mapa.
+- `systems/` e `map/tiledMap.ts` são TypeScript puro, sem React, e podem ser testados isolados.
+- O mapa inteiro é desenhado com 2 `instancedMesh` (chão e blocos), então custa 2 draw calls.
 - Sem shadow maps (sombra é um disco sob o personagem), pixel ratio limitado a 1.5, câmera fixa de cima.
 - Personagens são primitivas low-poly até termos modelos glTF.
 

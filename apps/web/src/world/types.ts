@@ -15,9 +15,3 @@ export interface WorldConfig {
   spawn: { x: number; y: number };
   entities: WorldEntity[];
 }
-
-/** Eventos que o mundo emite para a camada React. */
-export interface WorldEvents {
-  /** Entidade mais próxima dentro do raio de interação, ou null. */
-  nearbyEntityChanged: (entityId: string | null) => void;
-}

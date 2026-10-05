@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import dynamic from 'next/dynamic';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import type { AgentDTO, MapStateDTO } from '@metaverso/contracts';
 import type { WorldConfig } from '@/world';
 import { api } from '@/lib/api';
+
+// O mundo 3D só roda no navegador.
+const World = dynamic(() => import('@/world/World'), { ssr: false });
 
 /** Junta o estado do mapa com os nomes dos agentes. É aqui, e não no mundo, que os dois domínios se encontram. */
 function toWorldConfig(map: MapStateDTO, agents: AgentDTO[]): WorldConfig {
@@ -22,43 +26,26 @@ function toWorldConfig(map: MapStateDTO, agents: AgentDTO[]): WorldConfig {
 }
 
 export function WorldView({ mapId }: { mapId: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [nearbyLabel, setNearbyLabel] = useState<string | null>(null);
+  const [config, setConfig] = useState<WorldConfig | null>(null);
+  const [nearbyId, setNearbyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let destroyed = false;
-    let destroy: (() => void) | undefined;
-
-    (async () => {
-      try {
-        const [map, agents, { createWorld }] = await Promise.all([
-          api.getMap(mapId),
-          api.listAgents(),
-          import('@/world'), // o motor 3D só roda no navegador
-        ]);
-        if (destroyed || !containerRef.current) return;
-        const config = toWorldConfig(map, agents);
-        const world = await createWorld(containerRef.current, config);
-        if (destroyed) return world.destroy();
-        world.on('nearbyEntityChanged', (id) => {
-          setNearbyLabel(id ? (config.entities.find((e) => e.id === id)?.label ?? id) : null);
-        });
-        destroy = () => world.destroy();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
-      }
-    })();
-
+    let cancelled = false;
+    Promise.all([api.getMap(mapId), api.listAgents()])
+      .then(([map, agents]) => !cancelled && setConfig(toWorldConfig(map, agents)))
+      .catch((err) => setError(err instanceof Error ? err.message : String(err)));
     return () => {
-      destroyed = true;
-      destroy?.();
+      cancelled = true;
     };
   }, [mapId]);
 
+  const onError = useCallback((err: Error) => setError(err.message), []);
+  const nearbyLabel = nearbyId ? (config?.entities.find((e) => e.id === nearbyId)?.label ?? nearbyId) : null;
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      {config && <World config={config} onNearbyEntityChanged={setNearbyId} onError={onError} />}
       <div style={hudStyle}>WASD ou setas para andar</div>
       {nearbyLabel && <div style={{ ...hudStyle, top: 'auto', bottom: 24 }}>Perto de {nearbyLabel}</div>}
       {error && <div style={{ ...hudStyle, background: '#991b1b' }}>Não consegui carregar o mundo: {error}</div>}
@@ -76,4 +63,5 @@ const hudStyle: CSSProperties = {
   background: 'rgba(17,24,39,0.8)',
   fontSize: 14,
   pointerEvents: 'none',
+  zIndex: 1,
 };
