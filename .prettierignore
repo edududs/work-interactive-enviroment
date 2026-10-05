@@ -1,0 +1,8 @@
+.yarn
+dist
+.next
+coverage
+test-results
+playwright-report
+apps/web/public/maps
+apps/web/next-env.d.ts
