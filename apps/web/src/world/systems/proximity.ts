@@ -1,16 +1,16 @@
-import type { Npc } from '../entities/Npc';
-import type { Player } from '../entities/Player';
+export const INTERACTION_DISTANCE = 2; // tiles
 
-export const INTERACTION_DISTANCE = 64;
-
-/** Devolve a NPC mais próxima dentro do raio de interação, ou null. */
-export function findNearbyNpc(player: Player, npcs: Npc[]): Npc | null {
-  let best: Npc | null = null;
+/** Devolve o id da entidade mais próxima dentro do raio de interação, ou null. */
+export function findNearby(
+  from: { x: number; z: number },
+  entities: { id: string; x: number; z: number }[],
+): string | null {
+  let best: string | null = null;
   let bestDist = INTERACTION_DISTANCE;
-  for (const npc of npcs) {
-    const dist = Math.hypot(npc.x - player.x, npc.y - player.y);
+  for (const e of entities) {
+    const dist = Math.hypot(e.x - from.x, e.z - from.z);
     if (dist <= bestDist) {
-      best = npc;
+      best = e.id;
       bestDist = dist;
     }
   }

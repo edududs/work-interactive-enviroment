@@ -10,7 +10,6 @@ function toWorldConfig(map: MapStateDTO, agents: AgentDTO[]): WorldConfig {
   const names = new Map(agents.map((a) => [a.id, a.name]));
   return {
     tilemapUrl: map.tilemapUrl,
-    tilesetUrl: map.tilesetUrl,
     spawn: map.spawn,
     entities: map.entities.map((e) => ({
       id: e.id,
@@ -36,11 +35,12 @@ export function WorldView({ mapId }: { mapId: string }) {
         const [map, agents, { createWorld }] = await Promise.all([
           api.getMap(mapId),
           api.listAgents(),
-          import('@/world'), // Phaser só roda no navegador
+          import('@/world'), // o motor 3D só roda no navegador
         ]);
         if (destroyed || !containerRef.current) return;
         const config = toWorldConfig(map, agents);
-        const world = createWorld(containerRef.current, config);
+        const world = await createWorld(containerRef.current, config);
+        if (destroyed) return world.destroy();
         world.on('nearbyEntityChanged', (id) => {
           setNearbyLabel(id ? (config.entities.find((e) => e.id === id)?.label ?? id) : null);
         });

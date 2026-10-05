@@ -1,4 +1,6 @@
 // Gera o mapa inicial (formato Tiled JSON) e um tileset PNG placeholder.
+// O mundo é 3D, mas o layout continua sendo um grid 2D editável no Tiled:
+// cada tile da camada "walls" vira um bloco com a altura e a cor definidas nas propriedades do tileset.
 // Abra public/maps/office.json no Tiled para editar; depois disso este script vira opcional.
 import { writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
@@ -18,6 +20,9 @@ const TILE_COLORS = {
   [T.SHELF]: [[96, 60, 40], [170, 60, 60]],
 };
 const COLLIDES = new Set([T.WALL, T.DESK, T.SHELF]);
+// Altura (em tiles) com que cada tile é extrudado no mundo 3D. 0 = chão.
+const HEIGHT = { [T.WALL]: 1.1, [T.DESK]: 0.45, [T.SHELF]: 1.3 };
+const hex = ([r, g, b]) => '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
 
 // --- Layout --------------------------------------------------------------
 const ground = [];
@@ -73,9 +78,14 @@ const map = {
       columns: Object.keys(TILE_COLORS).length,
       margin: 0,
       spacing: 0,
-      tiles: [...COLLIDES].map((gid) => ({
+      // Propriedades por tile: o mundo 3D lê cor, altura e colisão daqui.
+      tiles: Object.keys(TILE_COLORS).map(Number).map((gid) => ({
         id: gid - 1,
-        properties: [{ name: 'collides', type: 'bool', value: true }],
+        properties: [
+          { name: 'collides', type: 'bool', value: COLLIDES.has(gid) },
+          { name: 'height', type: 'float', value: HEIGHT[gid] ?? 0 },
+          { name: 'color', type: 'color', value: hex(TILE_COLORS[gid][gid === T.SHELF ? 1 : 0]) },
+        ],
       })),
     },
   ],

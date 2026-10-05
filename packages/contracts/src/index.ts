@@ -21,8 +21,6 @@ export interface MapStateDTO {
   mapId: string;
   /** Caminho do JSON do Tiled servido pelo web (ex.: /maps/office.json). */
   tilemapUrl: string;
-  /** Imagem do tileset usado pelo mapa. */
-  tilesetUrl: string;
   spawn: { x: number; y: number };
   entities: WorldEntityDTO[];
 }

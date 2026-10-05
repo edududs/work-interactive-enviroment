@@ -6,7 +6,6 @@ const MAPS: Record<string, MapStateDTO> = {
   office: {
     mapId: 'office',
     tilemapUrl: '/maps/office.json',
-    tilesetUrl: '/maps/office-tiles.png',
     spawn: { x: 5 * 32 + 16, y: 13 * 32 + 16 },
     entities: [
       {

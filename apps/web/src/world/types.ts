@@ -4,6 +4,7 @@
 export interface WorldEntity {
   id: string;
   sprite: string;
+  /** Posição em pixels do mapa do Tiled (mesma convenção da API). */
   x: number;
   y: number;
   label?: string;
@@ -11,7 +12,6 @@ export interface WorldEntity {
 
 export interface WorldConfig {
   tilemapUrl: string;
-  tilesetUrl: string;
   spawn: { x: number; y: number };
   entities: WorldEntity[];
 }
