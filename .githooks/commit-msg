@@ -17,7 +17,7 @@ case "$subject" in
 esac
 
 bad_re='co-authored-by|generated with|claude|anthropic|session_|https://claude\.ai'
-if sed '1d' "$msg_file" | grep -v '^#' | grep -qiE "$bad_re"; then
+if grep -v '^#' "$msg_file" | grep -qiE "$bad_re"; then
   echo 'commit-msg: message mentions an AI tool or carries its trailer, which this repo never does' >&2
   exit 1
 fi

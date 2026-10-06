@@ -3,8 +3,7 @@
   "private": true,
   "packageManager": "yarn@4.18.1",
   "scripts": {
-    "postinstall": "yarn workspace @metaverso/contracts build",
-    "prepare": "git config core.hooksPath .githooks || true",
+    "postinstall": "(git config core.hooksPath .githooks || true) && yarn workspace @metaverso/contracts build",
     "dev": "yarn workspaces foreach -Api --exclude metaverso-trabalho --exclude @metaverso/contracts run dev",
     "build": "yarn workspaces foreach -Apt run build",
     "format": "prettier --write .",
