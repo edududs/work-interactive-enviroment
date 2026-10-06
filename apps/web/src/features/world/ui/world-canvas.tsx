@@ -3,6 +3,7 @@ import type { WorldScene } from '../domain/scene';
 import { Character } from './character';
 import { MapMeshes } from './map-meshes';
 import { Player } from './player';
+import { Prop } from './prop';
 
 export interface WorldCanvasProps {
   scene: WorldScene;
@@ -25,10 +26,14 @@ export default function WorldCanvas({ scene, onNearbyChange }: WorldCanvasProps)
       <hemisphereLight args={['#ffffff', '#4b5563', 2]} />
       <directionalLight position={[-5, 10, 4]} intensity={1.5} />
       <MapMeshes grid={scene.grid} />
-      {scene.entities.map((e) => (
-        <Character key={e.id} sprite={e.sprite} label={e.label} position={[e.x, 0, e.z]} />
-      ))}
-      <Player grid={scene.grid} spawn={scene.spawn} npcs={scene.entities} onNearbyChange={onNearbyChange} />
+      {scene.entities.map((e) =>
+        e.type === 'agent' ? (
+          <Character key={e.id} sprite={e.sprite} label={e.label} position={[e.x, 0, e.z]} />
+        ) : (
+          <Prop key={e.id} position={[e.x, 0, e.z]} />
+        ),
+      )}
+      <Player grid={scene.grid} spawn={scene.spawn} entities={scene.entities} onNearbyChange={onNearbyChange} />
     </Canvas>
   );
 }

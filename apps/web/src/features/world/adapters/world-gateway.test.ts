@@ -9,7 +9,7 @@ describe('world gateway', () => {
     vi.unstubAllGlobals();
   });
 
-  it('maps the contract DTO into the map state, keeping agentId only on agents', async () => {
+  it('asks the API through the web origin and keeps each entity type', async () => {
     const fetchMock = respond({
       mapId: 'office',
       tilemapUrl: '/maps/office.json',
@@ -17,17 +17,31 @@ describe('world gateway', () => {
       entities: [
         { id: 'npc', type: 'agent', position: { x: 3, y: 4, mapId: 'office' }, sprite: 'npc-dev', agentId: 'dev-ai' },
         { id: 'plant', type: 'object', position: { x: 5, y: 6, mapId: 'office' }, sprite: 'plant' },
+        { id: 'someone', type: 'player', position: { x: 7, y: 8, mapId: 'office' }, sprite: 'player' },
       ],
     });
     vi.stubGlobal('fetch', fetchMock);
 
     const state = await fetchMapState('office');
 
-    expect(fetchMock).toHaveBeenCalledWith('http://localhost:3001/world/maps/office');
+    expect(fetchMock).toHaveBeenCalledWith('/api/world/maps/office');
     expect(state.entities).toEqual([
-      { id: 'npc', sprite: 'npc-dev', x: 3, y: 4, agentId: 'dev-ai' },
-      { id: 'plant', sprite: 'plant', x: 5, y: 6 },
-    ]);
+      { id: 'npc', type: 'agent', sprite: 'npc-dev', x: 3, y: 4, agentId: 'dev-ai' },
+      { id: 'plant', type: 'object', sprite: 'plant', x: 5, y: 6 },
+    ]); // players are people online, not map content
+  });
+
+  it('refuses an agent the API sent without its agentId', async () => {
+    vi.stubGlobal(
+      'fetch',
+      respond({
+        mapId: 'office',
+        tilemapUrl: '/maps/office.json',
+        spawn: { x: 1, y: 2 },
+        entities: [{ id: 'npc', type: 'agent', position: { x: 3, y: 4, mapId: 'office' }, sprite: 'npc-dev' }],
+      }),
+    );
+    await expect(fetchMapState('office')).rejects.toThrow('npc');
   });
 
   it('fails with the HTTP status when the API refuses', async () => {

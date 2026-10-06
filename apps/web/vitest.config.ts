@@ -14,8 +14,8 @@ export default defineConfig({
       include: ['src/**'],
       exclude: [...coverageConfigDefaults.exclude, 'src/**/*.fixture.ts'],
       reporter: ['text', 'text-summary'],
-      // About two points under what the suite reaches, so a change that drops coverage fails.
-      thresholds: { statements: 93, branches: 88, functions: 90, lines: 95 },
+      // What the suite reaches today, rounded down: any drop fails the gate. Raise it, never lower it.
+      thresholds: { statements: 96, branches: 89, functions: 93, lines: 97 },
     },
   },
 });

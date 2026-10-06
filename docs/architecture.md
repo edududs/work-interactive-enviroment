@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
     U[Pessoa no navegador] --> W[apps/web<br/>Next.js + React Three Fiber]
-    W -->|HTTP, DTOs de packages/contracts| A[apps/api<br/>NestJS]
+    W -->|HTTP via /api da web, DTOs de packages/contracts| A[apps/api<br/>NestJS]
     W -->|asset estático| M[(public/maps<br/>Tiled JSON)]
 ```
 
@@ -70,7 +70,7 @@ flowchart TB
 - **Componentes 3D** com `@react-three/test-renderer`: o jogador anda com o teclado de verdade
   (`user-event`), para na parede e no NPC, e avisa a proximidade.
 - **Ponta a ponta** com Playwright sobre o build de produção, WebGL por SwiftShader.
-- **Cobertura com piso** no Vitest de cada app, cerca de dois pontos abaixo do que a suíte alcança.
+- **Cobertura com piso** no Vitest de cada app: 100% na API e, na web, o que a suíte alcança hoje arredondado para baixo. O piso só sobe.
 - **ESLint** `strictTypeChecked` + `stylisticTypeChecked`, regras de import por camada, Prettier,
   TypeScript com `noUncheckedIndexedAccess` e `exactOptionalPropertyTypes`.
 - **Hook `commit-msg`** recusa assunto fora do Conventional Commits e trailer de ferramenta de IA.

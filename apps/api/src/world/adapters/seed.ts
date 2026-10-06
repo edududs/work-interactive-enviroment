@@ -2,9 +2,8 @@ import { Position } from '../domain/position.js';
 import { agentEntity } from '../domain/world-entity.js';
 import { WorldMap } from '../domain/world-map.js';
 
-const TILE = 32;
-/** Center of a tile, in map pixels. */
-const tile = (x: number, y: number) => Position.of(x * TILE + TILE / 2, y * TILE + TILE / 2);
+/** Center of a tile. */
+const tile = (x: number, y: number) => Position.of(x + 0.5, y + 0.5);
 
 /** The only map until maps are persisted (phase 4). Its layout lives in the web app's Tiled file. */
 export const officeMap = WorldMap.create({

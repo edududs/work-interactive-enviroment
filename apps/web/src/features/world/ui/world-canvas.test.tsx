@@ -7,6 +7,7 @@ import type { WorldScene } from '../domain/scene';
 import { Character } from './character';
 import { MapMeshes } from './map-meshes';
 import { Player } from './player';
+import { Prop } from './prop';
 
 // jsdom has no 2D canvas: labels get a stand-in context that measures every text as 100px.
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
@@ -49,18 +50,30 @@ describe('Character', () => {
   });
 });
 
+describe('Prop', () => {
+  it('stands on the floor where it was placed', async () => {
+    const renderer = await ReactThreeTestRenderer.create(<Prop position={[2, 0, 3]} />);
+    const box = renderer.scene.children[0]!.instance;
+    expect([box.position.x, box.position.z]).toEqual([2, 3]);
+    expect(box.position.y).toBeGreaterThan(0);
+  });
+});
+
 describe('Player', () => {
   const scene: WorldScene = {
     grid: corridor,
     spawn: { x: 1.5, z: 1.5 },
-    entities: [{ id: 'npc-dev', sprite: 'npc-dev', x: 5.5, z: 1.5 }],
+    entities: [
+      { id: 'crate', type: 'object', sprite: 'crate', x: 2.5, z: 0.5 },
+      { id: 'npc-dev', type: 'agent', sprite: 'npc-dev', x: 5.5, z: 1.5 },
+    ],
   };
 
   it('walks with the keyboard, stops at walls and reports the NPC it reaches', async () => {
     const user = userEvent.setup();
     const onNearbyChange = vi.fn();
     const renderer = await ReactThreeTestRenderer.create(
-      <Player grid={scene.grid} spawn={scene.spawn} npcs={scene.entities} onNearbyChange={onNearbyChange} />,
+      <Player grid={scene.grid} spawn={scene.spawn} entities={scene.entities} onNearbyChange={onNearbyChange} />,
     );
     const player = renderer.scene.children[0]!.instance as Group;
 
@@ -78,7 +91,8 @@ describe('Player', () => {
     await user.keyboard('{/d}');
     expect(player.position.x).toBeGreaterThan(3.4);
     expect(player.position.x).toBeLessThan(5.5 - 0.6 + 1e-6); // it never walks through the NPC
-    expect(onNearbyChange).toHaveBeenLastCalledWith('npc-dev');
+    // The crate was within reach on the way, yet only the agent ever counts as nearby.
+    expect(onNearbyChange.mock.calls).toEqual([['npc-dev']]);
 
     await renderer.unmount();
   });

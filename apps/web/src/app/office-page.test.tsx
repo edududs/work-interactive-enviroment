@@ -25,8 +25,8 @@ describe('OfficePage', () => {
     vi.mocked(worldGateway.fetchMapState).mockResolvedValue({
       mapId: 'office',
       tilemapUrl: '/maps/office.json',
-      spawn: { x: 16, y: 16 },
-      entities: [{ id: 'npc-dev', sprite: 'npc-dev', x: 48, y: 16, agentId: 'dev-ai' }],
+      spawn: { x: 0.5, y: 0.5 },
+      entities: [{ id: 'npc-dev', type: 'agent', sprite: 'npc-dev', x: 1.5, y: 0.5, agentId: 'dev-ai' }],
     });
     vi.mocked(worldGateway.fetchGridMap).mockResolvedValue(gridFrom(['...']));
 

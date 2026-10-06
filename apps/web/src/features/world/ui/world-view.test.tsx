@@ -19,8 +19,8 @@ const scene: WorldScene = {
   grid: gridFrom(['...']),
   spawn: { x: 0.5, z: 0.5 },
   entities: [
-    { id: 'npc-dev', sprite: 'npc-dev', x: 2.5, z: 0.5, label: 'Dev AI' },
-    { id: 'npc-unnamed', sprite: 'npc-dev', x: 1.5, z: 0.5 },
+    { id: 'npc-dev', type: 'agent', sprite: 'npc-dev', x: 2.5, z: 0.5, label: 'Dev AI' },
+    { id: 'npc-unnamed', type: 'agent', sprite: 'npc-dev', x: 1.5, z: 0.5 },
   ],
 };
 

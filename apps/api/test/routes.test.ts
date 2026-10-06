@@ -28,12 +28,12 @@ describe('HTTP routes', () => {
     expect(res.body).toMatchObject({
       mapId: 'office',
       tilemapUrl: '/maps/office.json',
-      spawn: { x: 176, y: 432 },
+      spawn: { x: 5.5, y: 13.5 },
     });
     expect(res.body.entities).toContainEqual({
       id: 'npc-dev',
       type: 'agent',
-      position: { x: 208, y: 144, mapId: 'office' },
+      position: { x: 6.5, y: 4.5, mapId: 'office' },
       sprite: 'npc-dev',
       agentId: 'dev-ai',
     });

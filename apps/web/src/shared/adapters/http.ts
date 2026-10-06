@@ -1,10 +1,12 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-
-/** The only door to the network. Paths starting with "/" and no API prefix are served by the web app. */
+/** The only door to the network. */
 export async function getJson(url: string): Promise<unknown> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`GET ${url} falhou: ${String(res.status)}`);
   return res.json();
 }
 
-export const apiUrl = (path: string): string => `${API_URL}${path}`;
+/**
+ * API calls go to the web app's own origin under /api; next.config.ts forwards them to the API.
+ * The browser never needs to know where the API lives, so no build can point users at localhost.
+ */
+export const apiUrl = (path: string): string => `/api${path}`;

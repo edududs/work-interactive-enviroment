@@ -1,6 +1,6 @@
 import type { GridMap } from './grid-map';
 
-/** Where a map lives and what stands on it, in map pixels, as the API describes it. */
+/** Where a map lives and what stands on it, in tiles, as the API describes it. */
 export interface MapState {
   readonly mapId: string;
   readonly tilemapUrl: string;
@@ -8,14 +8,17 @@ export interface MapState {
   readonly entities: readonly MapEntity[];
 }
 
-export interface MapEntity {
+interface MapEntityBase {
   readonly id: string;
   readonly sprite: string;
   readonly x: number;
   readonly y: number;
-  /** Set only on agents: the world never looks behind it, it only asks the page for a label. */
-  readonly agentId?: string;
 }
+
+/** An agent carries the id the world never looks behind; it only asks the page for a label. */
+export type MapEntity =
+  | (MapEntityBase & { readonly type: 'agent'; readonly agentId: string })
+  | (MapEntityBase & { readonly type: 'object' });
 
 /** A point on the floor plane, in tiles. */
 export interface FloorPoint {
@@ -25,11 +28,13 @@ export interface FloorPoint {
 
 export interface SceneEntity extends FloorPoint {
   readonly id: string;
+  /** Agents are characters you can walk up to; objects only block the way. */
+  readonly type: 'agent' | 'object';
   readonly sprite: string;
   readonly label?: string;
 }
 
-/** Everything the 3D world needs to draw a map, already in tiles. */
+/** Everything the 3D world needs to draw a map. */
 export interface WorldScene {
   readonly grid: GridMap;
   readonly spawn: FloorPoint;

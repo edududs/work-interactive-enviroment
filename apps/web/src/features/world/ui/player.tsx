@@ -15,15 +15,16 @@ const MAX_FRAME_SECONDS = 0.1; // no "teleport" after the tab was in the backgro
 interface PlayerProps {
   grid: GridMap;
   spawn: FloorPoint;
-  npcs: readonly SceneEntity[];
+  /** Everything blocks the way; only agents count as nearby. */
+  entities: readonly SceneEntity[];
   onNearbyChange: (id: string | null) => void;
 }
 
 /**
  * Everything that changes every frame (position, camera) lives in refs and runs in useFrame.
- * React renders again only when the nearby NPC changes, through the callback.
+ * React renders again only when the nearby agent changes, through the callback.
  */
-export function Player({ grid, spawn, npcs, onNearbyChange }: PlayerProps) {
+export function Player({ grid, spawn, entities, onNearbyChange }: PlayerProps) {
   const ref = useRef<Group>(null);
   const body = useRef<Circle>({ x: spawn.x, z: spawn.z, r: CHARACTER_RADIUS });
   const input = useDirectionInput();
@@ -31,7 +32,8 @@ export function Player({ grid, spawn, npcs, onNearbyChange }: PlayerProps) {
   const walkTime = useRef(0);
   const cameraPlaced = useRef(false);
   const onNearbyRef = useRef(onNearbyChange);
-  const obstacles = useMemo(() => npcs.map((n): Circle => ({ x: n.x, z: n.z, r: CHARACTER_RADIUS })), [npcs]);
+  const obstacles = useMemo(() => entities.map((e): Circle => ({ x: e.x, z: e.z, r: CHARACTER_RADIUS })), [entities]);
+  const agents = useMemo(() => entities.filter((e) => e.type === 'agent'), [entities]);
   const desired = useMemo(() => new Vector3(), []);
   const lookAt = useMemo(() => new Vector3(), []);
 
@@ -61,7 +63,7 @@ export function Player({ grid, spawn, npcs, onNearbyChange }: PlayerProps) {
     cameraPlaced.current = true;
     camera.lookAt(lookAt.copy(camera.position).sub(CAMERA_OFFSET));
 
-    const id = findNearby(body.current, npcs);
+    const id = findNearby(body.current, agents);
     if (id !== nearbyId.current) {
       nearbyId.current = id;
       onNearbyRef.current(id);
