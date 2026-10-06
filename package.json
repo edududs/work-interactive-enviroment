@@ -1,10 +1,38 @@
 {
   "name": "metaverso-trabalho",
   "private": true,
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "yarn@4.18.1",
   "scripts": {
-    "dev": "pnpm --filter @metaverso/contracts build && pnpm -r --parallel --filter './apps/*' dev",
-    "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck"
+    "postinstall": "(git config core.hooksPath .githooks || true) && yarn workspace @metaverso/contracts build",
+    "dev": "yarn workspaces foreach -Api --exclude metaverso-trabalho --exclude @metaverso/contracts run dev",
+    "build": "yarn workspaces foreach -Apt run build",
+    "format": "prettier --write .",
+    "lint": "prettier --check . && eslint .",
+    "fix": "prettier --write . && eslint --fix . && yarn typecheck",
+    "typecheck": "yarn workspaces foreach -Ap run typecheck",
+    "test": "yarn workspaces foreach -Ap run test",
+    "coverage": "yarn workspaces foreach -Ap run coverage",
+    "check": "yarn lint && yarn typecheck && yarn coverage",
+    "check:heavy": "yarn check && yarn build",
+    "e2e": "yarn workspace @metaverso/web e2e"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@next/eslint-plugin-next": "^16.3.8",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.71.0"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22"
   }
 }

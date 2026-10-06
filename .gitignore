@@ -4,3 +4,9 @@ dist
 *.tsbuildinfo
 .env
 next-env.d.ts
+.yarn/*
+!.yarn/releases
+.pnp.*
+coverage
+test-results
+playwright-report

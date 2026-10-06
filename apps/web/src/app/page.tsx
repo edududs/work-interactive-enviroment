@@ -1,9 +1,5 @@
-import { WorldView } from '@/components/WorldView';
+import { OfficePage } from './office-page';
 
 export default function Home() {
-  return (
-    <main style={{ height: '100vh' }}>
-      <WorldView mapId="office" />
-    </main>
-  );
+  return <OfficePage />;
 }

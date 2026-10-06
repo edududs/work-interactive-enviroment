@@ -1,0 +1,25 @@
+#!/bin/sh
+# commit-msg gate: Conventional Commits subject, no AI-tool trailer or mention anywhere in the message.
+
+msg_file=$1
+subject=$(sed -n '1p' "$msg_file")
+
+case "$subject" in
+  Merge*|Revert*)
+    ;;
+  *)
+    type_re='^(feat|fix|perf|refactor|docs|test|build|ci|chore|style|revert)(\([^)]+\))?!?: .+'
+    if ! echo "$subject" | grep -qE "$type_re"; then
+      echo 'commit-msg: subject must follow Conventional Commits, e.g. "feat(world): description"' >&2
+      exit 1
+    fi
+    ;;
+esac
+
+bad_re='co-authored-by|generated with|claude|anthropic|session_|https://claude\.ai'
+if grep -v '^#' "$msg_file" | grep -qiE "$bad_re"; then
+  echo 'commit-msg: message mentions an AI tool or carries its trailer, which this repo never does' >&2
+  exit 1
+fi
+
+exit 0
